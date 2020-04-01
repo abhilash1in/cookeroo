@@ -20,6 +20,7 @@ requires = [
     'scipy'
 ]
 test_requirements = [
+    'pytest'
 ]
 
 about = {}
