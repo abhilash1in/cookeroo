@@ -25,7 +25,7 @@ test_requirements = [
 about = {}
 with open(os.path.join(here, 'cookeroo', '__version__.py'), 'r', encoding='utf-8') as f:
     exec(f.read(), about)
-    
+
 with open('README.md', 'r', encoding='utf-8') as f:
     readme = f.read()
 with open('LICENSE', 'r', encoding='utf-8') as f:
@@ -51,7 +51,7 @@ setup(
         'Intended Audience :: Developers',
         'Natural Language :: English',
         'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',
-        'Programming Language :: Python',        
+        'Programming Language :: Python',
     ],
     # cmdclass={'test': PyTest},
     tests_require=test_requirements,
