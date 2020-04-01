@@ -3,7 +3,6 @@ init:
 	pipenv install --dev
 test:
 	# This runs all of the tests
-	pipenv install --dev pytest
 	pytest
 flake8:
 	flake8 --count --select=E9,F63,F7,F82 --show-source --statistics cookeroo
