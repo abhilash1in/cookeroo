@@ -8,6 +8,7 @@ import numpy as np
 # pipenv install pydub
 # brew install ffmpeg
 
+
 class DataPrep():
     def __init__(self):
         super().__init__()
@@ -32,7 +33,7 @@ class DataPrep():
         res_sliced_audo_segments = []
         for audio_segment in audio_segments:
             # print(audio_segment_tuple[0] + ' ' + str(len(get_sliced_audio_segments(audio_segment_tuple, slice_interval))))
-            sliced_audio_segments = get_sliced_audio_segments(audio_segment, slice_interval, allow_gaps)
+            sliced_audio_segments = self.get_sliced_audio_segments(audio_segment, slice_interval, allow_gaps)
             res_sliced_audo_segments.extend(sliced_audio_segments)
         return res_sliced_audo_segments
 
@@ -52,9 +53,9 @@ class DataPrep():
         return sliced_audio_segments
 
     def export_audio_segments(self, audio_segments, folder_path, extension):
-        for index, sliced_audo_segment in enumerate(audio_segments) :
+        for index, sliced_audo_segment in enumerate(audio_segments):
             sliced_audo_segment.export(
-                os.path.join(folder_path, '{filename}.{extension}'.format(filename=index, extension=extension)), 
+                os.path.join(folder_path, '{filename}.{extension}'.format(filename=index, extension=extension)),
                 format=extension)
 
     def clear_dir(self, folder_path):
@@ -64,14 +65,14 @@ class DataPrep():
 
     def extract_features(self, file_path):
         try:
-            audio, sample_rate = librosa.load(file_path, res_type='kaiser_fast') 
+            audio, sample_rate = librosa.load(file_path, res_type='kaiser_fast')
             mfccs = librosa.feature.mfcc(y=audio, sr=sample_rate, n_mfcc=40)
             mfccsscaled = np.mean(mfccs.T, axis=0)
-            
-        except Exception as e:
+
+        except Exception:
             print("Error encountered while parsing file: ", file_path)
-            return None 
-        
+            return None
+
         return mfccsscaled
 
     def slice(self, data_base_path, extension, slice_interval):
@@ -94,13 +95,13 @@ class DataPrep():
             # created the sliced folder if it does not exist
             Path(category_data_sliced_folder_path).mkdir(parents=True, exist_ok=True)
             # clear old data in sliced folder
-            clear_dir(category_data_sliced_folder_path)
-            
+            self.clear_dir(category_data_sliced_folder_path)
+
             # get list of file paths with given extension
-            category_data_raw_file_paths = get_file_paths(category_data_raw_folder_path, extension)
+            category_data_raw_file_paths = self.get_file_paths(category_data_raw_folder_path, extension)
             # list of AudioSegments (one for each file)
-            audio_segments = get_audio_segments_wav(category_data_raw_file_paths)
+            audio_segments = self.get_audio_segments_wav(category_data_raw_file_paths)
             # list of all sliced AudioSegments combined
-            sliced_audo_segments = get_sliced_audo_segments(audio_segments, slice_interval)
+            sliced_audo_segments = self.get_sliced_audo_segments(audio_segments, slice_interval)
             # save sliced AudioSegments to sliced folder
-            export_audio_segments(sliced_audo_segments, category_data_sliced_folder_path, extension)
+            self.export_audio_segments(sliced_audo_segments, category_data_sliced_folder_path, extension)
