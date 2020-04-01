@@ -13,10 +13,10 @@ class DataPrep():
     def __init__(self):
         super().__init__()
 
-    def _get_file_paths(self, folder_path, extension):
+    def _get_file_paths(self, directory_path, extension):
         file_paths = []
-        for filename in os.listdir(folder_path):
-            file_path = os.path.join(folder_path, filename)
+        for filename in os.listdir(directory_path):
+            file_path = os.path.join(directory_path, filename)
             if file_path.endswith(extension) and os.path.isfile(file_path):
                 file_paths.append(file_path)
         return file_paths
@@ -52,14 +52,14 @@ class DataPrep():
             start = end
         return sliced_audio_segments
 
-    def _export_audio_segments(self, audio_segments, folder_path, extension):
+    def _export_audio_segments(self, audio_segments, directory_path, extension):
         for index, sliced_audo_segment in enumerate(audio_segments):
             sliced_audo_segment.export(
-                os.path.join(folder_path, '{filename}.{extension}'.format(filename=index, extension=extension)),
+                os.path.join(directory_path, '{filename}.{extension}'.format(filename=index, extension=extension)),
                 format=extension)
 
-    def _clear_dir(self, folder_path):
-        for root, dirs, files in os.walk(folder_path):
+    def _clear_dir(self, directory_path):
+        for root, dirs, files in os.walk(directory_path):
             for file in files:
                 os.remove(os.path.join(root, file))
 
@@ -75,7 +75,12 @@ class DataPrep():
 
         return mfccsscaled
 
-    def slice(self, data_base_path, extension, slice_interval):
+    def _is_existing_dir(self, directory_path):
+        if os.path.exists(directory_path) and os.path.isdir(directory_path):
+            return True
+        return False
+
+    def slice_and_export(self, data_base_path, extension, slice_interval):
         # data_base_path = '/Users/abhilash1in/Documents/Projects/Cookeroo/data/'
         # extension = 'wav'
         # slice_interval = 3 * 1000  # 3000 miliseconds = 3 seconds
@@ -84,24 +89,36 @@ class DataPrep():
         sliced_data_path = os.path.join(data_base_path, 'sliced')
 
         # raw > subdirectory names = category names
+        if not self._is_existing_dir(raw_data_path):
+            raise ValueError('Could not find \'raw\' directory at \'{raw_data_path}\'. \
+                Place your audio data in subdirectories under \'raw\' directory \
+                    and try again.'.format(raw_data_path=raw_data_path))
+
+        # raw > subdirectory names = category names
         categories = next(os.walk(raw_data_path))[1]
+        # exclude hidden files
+        categories = list(filter(lambda folder_name: not str(folder_name).startswith('.'), categories))
+
+        if len(categories) == 0:
+            raise ValueError('Could not find category subdirectories under \'raw\' directory ({raw_data_path}). \
+                    Place your audio data in subdirectories under \'raw\' directory \
+                        and try again.'.format(raw_data_path=raw_data_path))
 
         for category in categories:
-            # path to the individual category raw folder
-            category_data_raw_folder_path = os.path.join(raw_data_path, category)
-
-            # path to the individual category sliced folder
-            category_data_sliced_folder_path = os.path.join(sliced_data_path, category)
-            # created the sliced folder if it does not exist
-            Path(category_data_sliced_folder_path).mkdir(parents=True, exist_ok=True)
-            # clear old data in sliced folder
-            self._clear_dir(category_data_sliced_folder_path)
+            # path to the individual category raw directory
+            category_data_raw_directory_path = os.path.join(raw_data_path, category)
+            # path to the individual category sliced directory
+            category_data_sliced_directory_path = os.path.join(sliced_data_path, category)
+            # created the sliced directory if it does not exist
+            Path(category_data_sliced_directory_path).mkdir(parents=True, exist_ok=True)
+            # clear old data in sliced directory
+            self._clear_dir(category_data_sliced_directory_path)
 
             # get list of file paths with given extension
-            category_data_raw_file_paths = self._get_file_paths(category_data_raw_folder_path, extension)
+            category_data_raw_file_paths = self._get_file_paths(category_data_raw_directory_path, extension)
             # list of AudioSegments (one for each file)
             audio_segments = self._get_audio_segments_wav(category_data_raw_file_paths)
             # list of all sliced AudioSegments combined
-            sliced_audo_segments = self._get_sliced_audo_segments(audio_segments, slice_interval)
-            # save sliced AudioSegments to sliced folder
-            self._export_audio_segments(sliced_audo_segments, category_data_sliced_folder_path, extension)
+            sliced_audo_segments = self._get_sliced_audio_segments(audio_segments, slice_interval)
+            # save sliced AudioSegments to sliced directory
+            self._export_audio_segments(sliced_audo_segments, category_data_sliced_directory_path, extension)
