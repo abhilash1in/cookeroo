@@ -90,9 +90,9 @@ class DataPrep():
 
         # raw > subdirectory names = category names
         if not self._is_existing_dir(raw_data_path):
-            raise ValueError('Could not find \'raw\' directory at \'{raw_data_path}\'. \
-                Place your audio data in subdirectories under \'raw\' directory \
-                    and try again.'.format(raw_data_path=raw_data_path))
+            raise ValueError(('Could not find \'raw\' directory at \'{raw_data_path}\'. '
+                              'Place your audio data in subdirectories under \'raw\' directory '
+                              'and try again.').format(raw_data_path=raw_data_path))
 
         # raw > subdirectory names = category names
         categories = next(os.walk(raw_data_path))[1]
@@ -100,9 +100,9 @@ class DataPrep():
         categories = list(filter(lambda folder_name: not str(folder_name).startswith('.'), categories))
 
         if len(categories) == 0:
-            raise ValueError('Could not find category subdirectories under \'raw\' directory ({raw_data_path}). \
-                    Place your audio data in subdirectories under \'raw\' directory \
-                        and try again.'.format(raw_data_path=raw_data_path))
+            raise ValueError(('Could not find subdirectories (for categories) under \'raw\' directory ({raw_data_path}). '
+                              'Place your audio data in subdirectories (one subdirectory for each category) '
+                              'under \'raw\' directory and try again.').format(raw_data_path=raw_data_path))
 
         for category in categories:
             # path to the individual category raw directory
