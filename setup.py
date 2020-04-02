@@ -14,12 +14,16 @@ if sys.argv[-1] == 'publish':
 packages = ['cookeroo']
 
 requires = [
+    'pydub',
     'librosa',
     'numpy',
-    'pydub',
-    'scipy'
+    'scipy',
+    'pandas',
+    'keras',
+    'tensorflow'
 ]
 test_requirements = [
+    'flake8',
     'pytest'
 ]
 
