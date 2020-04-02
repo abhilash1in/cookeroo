@@ -2,7 +2,7 @@ import os
 import librosa
 import numpy as np
 import pandas as pd
-from .utils import _get_subdirectory_names, _get_file_paths
+from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir
 from sklearn.preprocessing import LabelEncoder
 from keras.utils import to_categorical
 from keras.models import Sequential
@@ -14,7 +14,7 @@ from sklearn import metrics
 from sklearn.model_selection import train_test_split
 from keras.callbacks import ModelCheckpoint
 from datetime import datetime
-
+from pathlib import Path
 
 class CookerooModel():
     def __init__(self, data_base_path, extension):
@@ -27,6 +27,8 @@ class CookerooModel():
         self._raw_data_path = os.path.join(self._data_base_path, 'raw')
         self._sliced_data_path = os.path.join(self._data_base_path, 'sliced')
         self._model_checkpoint_path = os.path.join(self._data_base_path, 'saved_models')
+        # Create checkpoint directory
+        Path(self._model_checkpoint_path).mkdir(parents=True, exist_ok=True)
 
     def _get_librosa_audio_objects(self, file_paths):
         librosa_audio_objects = []
@@ -42,6 +44,7 @@ class CookerooModel():
             sample_rate = librosa_audio_tuple[1]
             data = self._extract_features(audio, sample_rate)
             features.append([data, category])
+        return features
 
     def _extract_features(self, audio, sample_rate):
         try:
@@ -79,7 +82,7 @@ class CookerooModel():
         return "%.4f%%" % accuracy
 
     def _train(self, x_train, y_train, x_test, y_test, checkpoint_filepath, num_epochs=100, num_batch_size=32):
-        checkpointer = ModelCheckpoint(filepath='saved_models/weights.best.basic_mlp.hdf5', verbose=1, save_best_only=True)
+        checkpointer = ModelCheckpoint(filepath=os.path.join(checkpoint_filepath, 'weights.best.basic_mlp.hdf5'), verbose=1, save_best_only=True)
         start = datetime.now()
         self.model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs,
                        validation_data=(x_test, y_test), callbacks=[checkpointer], verbose=1)
@@ -87,7 +90,7 @@ class CookerooModel():
         print("Training completed in time: ", duration)
 
     def train(self):
-        if not self._is_existing_dir(self._sliced_data_path):
+        if not _is_existing_dir(self._sliced_data_path):
             raise ValueError(('Could not find \'sliced\' directory at \'{path}\'. '
                               'Place your training audio data in subdirectories under \'sliced\' '
                               'directory and try again.').format(path=self._sliced_data_path))
@@ -122,7 +125,7 @@ class CookerooModel():
 
         x_train, x_test, y_train, y_test = train_test_split(X, yy, test_size=0.2, random_state=42)
 
-        self._build_model()
+        self._build_model(num_labels=yy.shape[1])
 
         # Calculate pre-training accuracy
         pre_training_accuracy = self._evaluate_model(x_test, y_test, verbose=0)
