@@ -12,6 +12,9 @@ pydub = "*"
 librosa = "*"
 numpy = "*"
 scipy = "*"
+pandas = "*"
+keras = "*"
+tensorflow = "*"
 
 [requires]
 python_version = "3.7"
