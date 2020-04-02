@@ -2,7 +2,7 @@
 import os
 from pydub import AudioSegment
 from pathlib import Path
-from .utils import _get_subdirectory_names, _get_file_paths
+from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir
 
 # pipenv install pydub
 # brew install ffmpeg
@@ -61,11 +61,6 @@ class DataPrep():
             for file in files:
                 os.remove(os.path.join(root, file))
 
-    def _is_existing_dir(self, directory_path):
-        if os.path.exists(directory_path) and os.path.isdir(directory_path):
-            return True
-        return False
-
     def export(self):
         if len(self._sliced_audio_segments) == 0:
             raise ValueError('No audio segments to export')
@@ -84,15 +79,15 @@ class DataPrep():
         # slice_interval = 3 * 1000  # 3000 miliseconds = 3 seconds
 
         # raw > subdirectory names = category names
-        if not self._is_existing_dir(self._raw_data_path):
+        if not _is_existing_dir(self._raw_data_path):
             raise ValueError(('Could not find \'raw\' directory at \'{raw_data_path}\'. '
                               'Place your audio data in subdirectories under \'raw\' directory '
                               'and try again.').format(raw_data_path=self._raw_data_path))
 
         # raw > subdirectory names => category names
-        categories = _get_subdirectory_names(self._sliced_data_path)
+        categories = _get_subdirectory_names(self._raw_data_path)
 
-        if len(categories) == 0:
+        if not categories or len(categories) == 0:
             raise ValueError(('Could not find subdirectories (for categories) under \'raw\' directory ({raw_data_path}). '
                               'Place your audio data in subdirectories (one subdirectory for each category) '
                               'under \'raw\' directory and try again.').format(raw_data_path=self._raw_data_path))

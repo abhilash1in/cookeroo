@@ -2,10 +2,19 @@ import os
 
 
 def _get_subdirectory_names(directory_path, exclude_hidden=True):
-    subdirectories = next(os.walk(directory_path))[1]
-    if exclude_hidden:
-        subdirectories = list(filter(lambda folder_name: not str(folder_name).startswith('.'), subdirectories))
+    try:
+        subdirectories = next(os.walk(directory_path))[1]
+        if exclude_hidden:
+            subdirectories = list(filter(lambda folder_name: not str(folder_name).startswith('.'), subdirectories))
+    except Exception:
+        subdirectories = None
     return subdirectories
+
+
+def _is_existing_dir(directory_path):
+    if os.path.exists(directory_path) and os.path.isdir(directory_path):
+        return True
+    return False
 
 
 def _get_file_paths(directory_path, extension=None):
