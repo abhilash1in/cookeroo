@@ -3,6 +3,7 @@ import os
 from pydub import AudioSegment
 from pathlib import Path
 from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir
+from .exceptions import InvalidDirectoryStructureException
 
 # pipenv install pydub
 # brew install ffmpeg
@@ -80,17 +81,19 @@ class DataPrep():
 
         # raw > subdirectory names = category names
         if not _is_existing_dir(self._raw_data_path):
-            raise ValueError(('Could not find \'raw\' directory at \'{raw_data_path}\'. '
-                              'Place your audio data in subdirectories under \'raw\' directory '
-                              'and try again.').format(raw_data_path=self._raw_data_path))
+            raise InvalidDirectoryStructureException((
+                'Could not find \'raw\' directory at \'{raw_data_path}\'. '
+                'Place your audio data in subdirectories under \'raw\' directory '
+                'and try again.').format(raw_data_path=self._raw_data_path))
 
         # raw > subdirectory names => category names
         categories = _get_subdirectory_names(self._raw_data_path)
 
         if not categories or len(categories) == 0:
-            raise ValueError(('Could not find subdirectories (for categories) under \'raw\' directory ({raw_data_path}). '
-                              'Place your audio data in subdirectories (one subdirectory for each category) '
-                              'under \'raw\' directory and try again.').format(raw_data_path=self._raw_data_path))
+            raise InvalidDirectoryStructureException((
+                'Could not find subdirectories (for categories) under \'raw\' directory ({raw_data_path}). '
+                'Place your audio data in subdirectories (one subdirectory for each category) '
+                'under \'raw\' directory and try again.').format(raw_data_path=self._raw_data_path))
 
         for category in categories:
             # path to the individual category raw directory
