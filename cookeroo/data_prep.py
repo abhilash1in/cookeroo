@@ -3,7 +3,6 @@ import os
 from pydub import AudioSegment
 from pathlib import Path
 from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir, _clear_dir
-from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir
 from .exceptions import InvalidDirectoryStructureException
 
 # pipenv install pydub
