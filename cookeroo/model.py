@@ -16,6 +16,7 @@ from keras.callbacks import ModelCheckpoint
 from datetime import datetime
 from pathlib import Path
 
+
 class CookerooModel():
     def __init__(self, data_base_path, extension):
         super().__init__()
@@ -82,7 +83,9 @@ class CookerooModel():
         return "%.4f%%" % accuracy
 
     def _train(self, x_train, y_train, x_test, y_test, checkpoint_filepath, num_epochs=100, num_batch_size=32):
-        checkpointer = ModelCheckpoint(filepath=os.path.join(checkpoint_filepath, 'weights.best.basic_mlp.hdf5'), verbose=1, save_best_only=True)
+        checkpointer = ModelCheckpoint(
+            filepath=os.path.join(checkpoint_filepath, 'weights.best.basic_mlp.hdf5'), verbose=1,
+            save_best_only=True)
         start = datetime.now()
         self.model.fit(x_train, y_train, batch_size=num_batch_size, epochs=num_epochs,
                        validation_data=(x_test, y_test), callbacks=[checkpointer], verbose=1)
