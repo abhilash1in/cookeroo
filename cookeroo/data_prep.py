@@ -2,7 +2,7 @@
 import os
 from pydub import AudioSegment
 from pathlib import Path
-from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir
+from .utils import _get_subdirectory_names, _get_file_paths, _is_existing_dir, _clear_dir
 
 # pipenv install pydub
 # brew install ffmpeg
@@ -56,11 +56,6 @@ class DataPrep():
                 os.path.join(directory_path, '{filename}.{extension}'.format(filename=index, extension=extension)),
                 format=extension)
 
-    def _clear_dir(self, directory_path):
-        for root, dirs, files in os.walk(directory_path):
-            for file in files:
-                os.remove(os.path.join(root, file))
-
     def export(self):
         if len(self._sliced_audio_segments) == 0:
             raise ValueError('No audio segments to export')
@@ -71,7 +66,7 @@ class DataPrep():
             # created the sliced directory if it does not exist
             Path(category_data_sliced_directory_path).mkdir(parents=True, exist_ok=True)
             # clear old data in sliced directory
-            self._clear_dir(category_data_sliced_directory_path)
+            _clear_dir(category_data_sliced_directory_path)
             # save sliced AudioSegments to sliced directory
             self._export_audio_segments(audio_segments, category_data_sliced_directory_path, self._extension)
 

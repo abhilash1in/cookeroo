@@ -17,6 +17,12 @@ def _is_existing_dir(directory_path):
     return False
 
 
+def _clear_dir(directory_path):
+    for root, dirs, files in os.walk(directory_path):
+        for file in files:
+            os.remove(os.path.join(root, file))
+
+
 def _get_file_paths(directory_path, extension=None):
     file_paths = []
     for filename in os.listdir(directory_path):
